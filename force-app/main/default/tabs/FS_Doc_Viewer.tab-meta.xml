@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Document Viewer - View and edit flow documentation with markdown support</description>
+    <flexiPage>fsDocViewer</flexiPage>
+    <label>Document Viewer</label>
+    <motif>Custom15:Library</motif>
+</CustomTab>

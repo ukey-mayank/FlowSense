@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomTab xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Dashboard for monitoring flow performance and analytics</description>
+    <flexiPage>FlowSense_Analytics_Page</flexiPage>
+    <label>Dashboard</label>
+    <motif>Custom18:Globe</motif>
+</CustomTab>

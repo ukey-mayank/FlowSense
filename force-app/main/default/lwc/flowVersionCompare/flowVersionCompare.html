@@ -1,0 +1,207 @@
+<template>
+    <lightning-card>
+        
+        <!-- Input Section -->
+        <div class="slds-card__body slds-card__body_inner">
+            <div class="slds-grid slds-gutters slds-wrap">
+                
+                <!-- Flow Selection -->
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                    <lightning-combobox
+                        name="flowApiName"
+                        label="Flow API Name"
+                        value={flowApiName}
+                        placeholder="Select a flow..."
+                        options={flowOptions}
+                        onchange={handleFlowChange}
+                        required>
+                    </lightning-combobox>
+                </div>
+
+                <!-- From Version -->
+                <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-3">
+                    <lightning-input
+                        name="fromVersion"
+                        label="From Version"
+                        type="number"
+                        value={fromVersion}
+                        min="1"
+                        onchange={handleFromVersionChange}
+                        required>
+                    </lightning-input>
+                </div>
+
+                <!-- To Version -->
+                <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-3">
+                    <lightning-input
+                        name="toVersion"
+                        label="To Version"
+                        type="number"
+                        value={toVersion}
+                        min="1"
+                        onchange={handleToVersionChange}
+                        required>
+                    </lightning-input>
+                </div>
+
+            </div>
+
+            <!-- Compare Button -->
+            <div class="slds-m-top_medium">
+                <lightning-button
+                    variant="brand"
+                    label="Compare Versions"
+                    onclick={handleCompare}
+                    disabled={isLoading}>
+                </lightning-button>
+                
+                <template if:true={isLoading}>
+                    <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+                </template>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <template if:true={hasResult}>
+            <div class="slds-card__body slds-card__body_inner slds-border_top">
+                
+                <!-- Comparison Header -->
+                <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                    <div class="slds-col slds-size_1-of-1">
+                        <h2 class="slds-text-heading_medium">
+                            {comparisonResult.flowApiName} 
+                            <span class="slds-text-color_weak">
+                                (v{comparisonResult.fromVersion} → v{comparisonResult.toVersion})
+                            </span>
+                        </h2>
+                        <p class="slds-text-body_small slds-text-color_weak">
+                            Compared on {comparisonResult.comparisonDate}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <template if:true={performanceData}>
+                    <div class="slds-m-bottom_large">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Performance Changes</h3>
+                        <div class="slds-grid slds-gutters slds-wrap">
+                            <template for:each={performanceData} for:item="metric">
+                                <div key={metric.metric} class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4">
+                                    <div class="performance-metric">
+                                        <lightning-icon 
+                                            icon-name={metric.icon} 
+                                            size="x-small" 
+                                            variant={metric.isPositive} 
+                                            class="slds-m-right_x-small">
+                                        </lightning-icon>
+                                        <span class="metric-value" data-positive={metric.isPositive}>
+                                            {metric.improvement}%
+                                        </span>
+                                        <div class="metric-label">{metric.metric}</div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Risk Score -->
+                        <div class="slds-m-top_medium">
+                            <div class={riskLevelClass}>
+                                Risk Score: {comparisonResult.performanceChange.riskScore}/10
+                                <span class="risk-level">({riskLevel} risk)</span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Element Changes -->
+                <template if:true={hasElementChanges}>
+                    <div class="slds-m-bottom_large">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Element Changes</h3>
+                        <div class="change-list">
+                            <template for:each={comparisonResult.elementChanges} for:item="change">
+                                <div key={change.elementName} class="change-item">
+                                    <span class={change.changeType}>
+                                        {change.changeType}
+                                    </span>
+                                    <span class="element-type">{change.elementType}</span>
+                                    <span class="element-name">{change.elementName}</span>
+                                    <div class="change-description">{change.description}</div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Formula Changes -->
+                <template if:true={hasFormulaChanges}>
+                    <div class="slds-m-bottom_large">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Formula Changes</h3>
+                        <div class="change-list">
+                            <template for:each={comparisonResult.formulaChanges} for:item="change">
+                                <div key={change.elementName} class="formula-change">
+                                    <div class="formula-header">
+                                        <span class="element-name">{change.elementName}</span>
+                                        <span class={change.impactLevel}>
+                                            {change.impactLevel} Impact
+                                        </span>
+                                    </div>
+                                    <div class="formula-diff">
+                                        <div class="formula-old">
+                                            <label>Before:</label>
+                                            <code>{change.oldFormula}</code>
+                                        </div>
+                                        <div class="formula-new">
+                                            <label>After:</label>
+                                            <code>{change.newFormula}</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Decision Path Changes -->
+                <template if:true={hasDecisionChanges}>
+                    <div class="slds-m-bottom_large">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Decision Path Changes</h3>
+                        <div class="change-list">
+                            <template for:each={comparisonResult.decisionPathChanges} for:item="change">
+                                <div key={change.decisionName} class="decision-change">
+                                    <div class="decision-header">
+                                        <span class="decision-name">{change.decisionName}</span>
+                                        <span class={change.impact}>
+                                            {change.impact} Impact
+                                        </span>
+                                    </div>
+                                    <div class="decision-description">{change.description}</div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Summary Section -->
+                <div class="slds-m-top_large">
+                    <lightning-button
+                        variant="outline-brand"
+                        label={showDetailsLabel}
+                        icon-name="utility:preview"
+                        onclick={handleToggleDetails}>
+                    </lightning-button>
+
+                    <template if:true={showDetails}>
+                        <div class="summary-section slds-m-top_medium">
+                            <h3 class="slds-text-heading_small">Detailed Summary</h3>
+                            <div class="summary-text">
+                                <lightning-formatted-text value={comparisonResult.summary}></lightning-formatted-text>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+            </div>
+        </template>
+
+    </lightning-card>
+</template>

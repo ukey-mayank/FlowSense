@@ -1,0 +1,137 @@
+<template>
+    <div class="settings-container" style={containerStyle}>
+        <div class="modern-card">
+            <div class="card-header">
+                <div class="header-icon">
+                    <lightning-icon icon-name="utility:settings" size="medium"></lightning-icon>
+                </div>
+                <div class="header-content">
+                    <h1 class="card-title">FlowSense Settings</h1>
+                    <p class="card-subtitle">Configure monitoring, thresholds, and system preferences</p>
+                </div>
+                <div class="header-actions">
+                    <div class="action-buttons">
+                        <lightning-button variant="neutral" icon-name="utility:refresh" label="Reset to Defaults" onclick={resetToDefaults} disabled={isLoading}></lightning-button>
+                        <lightning-button variant="brand" icon-name="utility:save" label="Save Settings" onclick={saveSettings} disabled={saveDisabled}></lightning-button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-content">
+                <!-- Settings Navigation -->
+                <div class="settings-layout">
+                    <div class="settings-sidebar">
+                        <nav class="sidebar-nav">
+                            <div class="nav-header">
+                                <h3 class="nav-title">Configuration</h3>
+                            </div>
+                            <ul class="nav-menu">
+                                <template for:each={settingSections} for:item="section">
+                                    <li key={section.key} class="nav-item">
+                                        <button 
+                                            class={section.buttonClass}
+                                            onclick={handleSectionChange}
+                                            data-section={section.key}>
+                                            <div class="nav-icon">
+                                                <lightning-icon icon-name={section.icon} size="small"></lightning-icon>
+                                            </div>
+                                            <span class="nav-label">{section.label}</span>
+                                            <div class="nav-indicator"></div>
+                                        </button>
+                                    </li>
+                                </template>
+                            </ul>
+                        </nav>
+                    </div>
+                    
+                    <div class="settings-main">
+                        <div class="settings-content">
+                            
+                            <!-- General Settings -->
+                            <template if:true={isGeneralSection}>
+                                <div class="settings-section">
+                                    <div class="section-header">
+                                        <h2 class="section-title">General Settings</h2>
+                                        <p class="section-description">Configure basic monitoring and performance tracking options</p>
+                                    </div>
+                                    
+                                    <div class="settings-groups">
+                                        <div class="settings-group">
+                                            <div class="group-header">
+                                                <h3 class="group-title">
+                                                    <lightning-icon icon-name="utility:monitor" size="small"></lightning-icon>
+                                                    Monitoring Configuration
+                                                </h3>
+                                                <p class="group-description">Control how FlowSense monitors and tracks flow executions</p>
+                                            </div>
+                                            <div class="group-content">
+                                                <div class="setting-row">
+                                                    <div class="setting-info">
+                                                        <label class="setting-label">Enable Flow Monitoring</label>
+                                                        <p class="setting-help">Turn on real-time monitoring of flow executions</p>
+                                                    </div>
+                                                    <div class="setting-control">
+                                                        <lightning-input
+                                                            type="toggle"
+                                                            checked={settings.enableMonitoring}
+                                                            onchange={handleToggleChange}
+                                                            data-field="enableMonitoring"
+                                                            variant="label-hidden">
+                                                        </lightning-input>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="setting-row">
+                                                    <div class="setting-info">
+                                                        <label class="setting-label">Data Retention Period</label>
+                                                        <p class="setting-help">Number of days to keep monitoring data (7-365 days)</p>
+                                                    </div>
+                                                    <div class="setting-control">
+                                                        <lightning-input
+                                                            type="number"
+                                                            value={settings.dataRetentionDays}
+                                                            onchange={handleInputChange}
+                                                            data-field="dataRetentionDays"
+                                                            min="7"
+                                                            max="365"
+                                                            step="1"
+                                                            variant="label-hidden">
+                                                        </lightning-input>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Status -->
+                <template if:true={hasUnsavedChanges}>
+                    <div class="settings-status">
+                        <div class="status-alert warning">
+                            <div class="alert-icon">
+                                <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+                            </div>
+                            <div class="alert-content">
+                                <h3 class="alert-title">Unsaved Changes</h3>
+                                <p class="alert-message">You have unsaved changes. Don't forget to save your settings to apply the changes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                
+                <template if:true={isLoading}>
+                    <div class="loading-overlay">
+                        <div class="loading-content">
+                            <lightning-spinner alternative-text="Saving settings..." variant="brand" size="large"></lightning-spinner>
+                            <p class="loading-text">Applying your configuration changes...</p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

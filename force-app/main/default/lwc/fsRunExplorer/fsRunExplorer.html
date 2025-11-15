@@ -1,0 +1,222 @@
+<template>
+    <div class="explorer-container">
+        <div class="modern-card">
+            <div class="card-header">
+                <div class="header-icon">
+                    <lightning-icon icon-name="utility:flow" size="medium"></lightning-icon>
+                </div>
+                <div class="header-content">
+                    <h1 class="card-title">Flow Run Explorer</h1>
+                    <p class="card-subtitle">Detailed execution analysis and performance insights</p>
+                </div>
+                <div class="header-actions">
+                    <div class="action-buttons">
+                        <lightning-button variant="neutral" icon-name="utility:refresh" label="Refresh"></lightning-button>
+                        <lightning-button variant="neutral" icon-name="utility:download" label="Export"></lightning-button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-content">
+                <!-- Flow Run Header -->
+                <div class="run-overview">
+                    <div class="overview-grid">
+                        <div class="overview-main">
+                            <div class="flow-identity">
+                                <h2 class="flow-name">{flowRun.Flow_Label__c}</h2>
+                                <div class="flow-meta">
+                                    <span class="meta-item">
+                                        <lightning-icon icon-name="utility:apex" size="x-small"></lightning-icon>
+                                        {flowRun.Flow_Api_Name__c}
+                                    </span>
+                                    <span class="meta-separator">•</span>
+                                    <span class="meta-item">
+                                        <lightning-icon icon-name="utility:versions" size="x-small"></lightning-icon>
+                                        v{flowRun.Flow_Version__c}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overview-status">
+                            <div class="status-badge">
+                                <lightning-badge label={flowRun.Status__c} variant={statusVariant}></lightning-badge>
+                            </div>
+                            <div class="execution-summary">
+                                <div class="summary-item">
+                                    <span class="summary-value">{totalDuration}ms</span>
+                                    <span class="summary-label">Duration</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-value">{stepCount}</span>
+                                    <span class="summary-label">Steps</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="performance-dashboard">
+                    <h3 class="section-title">
+                        <lightning-icon icon-name="utility:analytics" size="small"></lightning-icon>
+                        Performance Metrics
+                    </h3>
+                    <div class="metrics-grid">
+                        <div class="metric-card cpu">
+                            <div class="metric-icon">
+                                <lightning-icon icon-name="utility:clock" size="medium"></lightning-icon>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value">{flowRun.CPU_Time_Millis__c}</div>
+                                <div class="metric-label">CPU Time (ms)</div>
+                            </div>
+                            <div class="metric-indicator cpu-indicator"></div>
+                        </div>
+                        <div class="metric-card soql">
+                            <div class="metric-icon">
+                                <lightning-icon icon-name="utility:database" size="medium"></lightning-icon>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value">{flowRun.SOQL_Count__c}</div>
+                                <div class="metric-label">SOQL Queries</div>
+                            </div>
+                            <div class="metric-indicator soql-indicator"></div>
+                        </div>
+                        <div class="metric-card dml">
+                            <div class="metric-icon">
+                                <lightning-icon icon-name="utility:edit" size="medium"></lightning-icon>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value">{flowRun.DML_Count__c}</div>
+                                <div class="metric-label">DML Operations</div>
+                            </div>
+                            <div class="metric-indicator dml-indicator"></div>
+                        </div>
+                        <div class="metric-card heap">
+                            <div class="metric-icon">
+                                <lightning-icon icon-name="utility:memory" size="medium"></lightning-icon>
+                            </div>
+                            <div class="metric-content">
+                                <div class="metric-value">{flowRun.Heap_Size__c}</div>
+                                <div class="metric-label">Heap Size (KB)</div>
+                            </div>
+                            <div class="metric-indicator heap-indicator"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline View -->
+                <div class="timeline-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <lightning-icon icon-name="utility:timeline" size="small"></lightning-icon>
+                            Execution Timeline
+                        </h3>
+                        <div class="timeline-controls">
+                            <lightning-button-group>
+                                <lightning-button label="Collapse All" variant="neutral" onclick={collapseAll}></lightning-button>
+                                <lightning-button label="Expand All" variant="neutral" onclick={expandAll}></lightning-button>
+                            </lightning-button-group>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-wrapper">
+                        <div class="timeline">
+                            <template for:each={flowSteps} for:item="step">
+                                <div key={step.Id} class="timeline-item" data-step-id={step.Id}>
+                                    <div class={step.timelineClass} onclick={handleStepClick}>
+                                        <div class="timeline-marker">
+                                            <div class="marker-icon">
+                                                <lightning-icon icon-name={step.iconName} size="xx-small"></lightning-icon>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <div class="step-header">
+                                                <div class="step-main">
+                                                    <h4 class="step-name">{step.Element_Label__c}</h4>
+                                                    <div class="step-meta">
+                                                        <span class="step-type">{step.Element_Type__c}</span>
+                                                        <span class="step-performance-score" data-score={step.performanceScore}>{step.performanceScore}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="step-metrics">
+                                                    <div class="metric-chip duration">
+                                                        <lightning-icon icon-name="utility:clock" size="xx-small"></lightning-icon>
+                                                        <span>{step.Duration_Millis__c}ms</span>
+                                                    </div>
+                                                    <div class="expand-indicator">
+                                                        <lightning-icon icon-name={step.expandIcon} size="xx-small"></lightning-icon>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <template if:true={step.showDetails}>
+                                                <div class="step-details">
+                                                    <div class="details-grid">
+                                                        <div class="detail-item">
+                                                            <div class="detail-icon">
+                                                                <lightning-icon icon-name="utility:clock" size="xx-small"></lightning-icon>
+                                                            </div>
+                                                            <div class="detail-content">
+                                                                <span class="detail-label">CPU Time</span>
+                                                                <span class="detail-value">{step.CPU_Time_Millis__c}ms</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="detail-item">
+                                                            <div class="detail-icon">
+                                                                <lightning-icon icon-name="utility:database" size="xx-small"></lightning-icon>
+                                                            </div>
+                                                            <div class="detail-content">
+                                                                <span class="detail-label">SOQL Queries</span>
+                                                                <span class="detail-value">{step.SOQL_Count__c}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="detail-item">
+                                                            <div class="detail-icon">
+                                                                <lightning-icon icon-name="utility:edit" size="xx-small"></lightning-icon>
+                                                            </div>
+                                                            <div class="detail-content">
+                                                                <span class="detail-label">DML Operations</span>
+                                                                <span class="detail-value">{step.DML_Count__c}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <template if:true={step.Outcome__c}>
+                                                        <div class="step-outcome">
+                                                            <div class="outcome-chip">
+                                                                <lightning-icon icon-name="utility:success" size="xx-small"></lightning-icon>
+                                                                <span>{step.Outcome__c}</span>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Details (if any) -->
+                <template if:true={hasError}>
+                    <div class="error-section">
+                        <div class="error-card">
+                            <div class="error-header">
+                                <lightning-icon icon-name="utility:error" size="small" variant="error"></lightning-icon>
+                                <h3 class="error-title">Execution Error</h3>
+                            </div>
+                            <div class="error-content">
+                                <lightning-formatted-text value={flowRun.Error_Message__c}></lightning-formatted-text>
+                            </div>
+                            <div class="error-actions">
+                                <lightning-button label="Copy Error" variant="neutral" onclick={copyError}></lightning-button>
+                                <lightning-button label="View Logs" variant="brand" onclick={viewLogs}></lightning-button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

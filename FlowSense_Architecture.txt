@@ -1,0 +1,127 @@
+FlowSense — AI-Powered Salesforce Flow Governance Suite
+Updated System Architecture & Data Model (AppExchange-Ready)
+0) Goals & Scope
+FlowSense delivers unified monitoring, documentation, version comparison, performance analysis, and AI assistance for Salesforce Flows. This document outlines the architecture, data model, extensibility, packaging strategy, and security-review considerations.
+1) Core Modules
+• Flow Logging & Error Monitoring: Log every Flow execution (run + steps) with inputs, outputs, timing, resource usage, status, and fault context. Real-time alerts (Email/Slack/Teams/WhatsApp).
+• Flow Version Compare (Diff): Side-by-side comparison of any two Flow versions. Detect added/removed elements, formula and condition changes, and path modifications.
+• Auto-Documentation: Generate Markdown + SVG diagrams, resources tables, decision explanations, and AI-generated test scenarios. Exportable as PDF.
+• Performance Analyzer: Hotspot detection (SOQL/DML-in-loop, recursion, long-running elements). Heatmaps, scores, and optimization recommendations.
+• AI Flow Helper: Natural-language flow blueprints, formula generation, explanations, optimization hints, and troubleshooting via secure Named Credentials.
+2) Data Model (Managed Package Objects)
+All object/API names are prefixed with FS_ for FlowSense.
+FS_Flow_Run__c (Parent)
+• Flow_Api_Name__c (Text, Indexed)
+• Flow_Label__c (Text)
+• Flow_Version__c (Number, 0)
+• Interview_Id__c (Text, External Id, Unique)
+• Trigger_Context__c (Picklist: Before/After/Screen/Autolaunched/Scheduled/PlatformEvent)
+• Entry_Record_Id__c (Text(18), Indexed)
+• Started_At__c (Datetime, Indexed)
+• Ended_At__c (Datetime)
+• Status__c (Picklist: Success/Failed/Terminated/InProgress)
+• CPU_Millis__c (Number, 0) | SOQL_Count__c (Number, 0) | DML_Count__c (Number, 0)
+• Error_Message__c (Long Text) | Runtime_User__c (Lookup User) | Org_Namespace__c (Text)
+FS_Flow_Step__c (Child, M-D to Run)
+• Flow_Run__c (Master-Detail ? FS_Flow_Run__c)
+• Sequence__c (Number, 0, Indexed)
+• Element_DeveloperName__c (Text, Indexed) | Element_Label__c (Text)
+Element_Type__c (Picklist:
+Assignment/Decision/GetRecords/UpdateRecords/ApexAction/Subflow/Screen/etc.)
+• Entered_At__c (Datetime) | Exited_At__c (Datetime) | Duration_Millis__c (Number, 0)
+• CPU_Millis__c (Number, 0) | SOQL_Count__c (Number, 0) | DML_Count__c (Number, 0)
+• Outcome__c (Text) // e.g., decision outcome, error
+FS_Flow_Alert__c (Policies)
+• Policy_Name__c (Text) | Active__c (Checkbox) | Severity__c (Picklist: Info/Warning/Critical)
+• Applies_To__c (Picklist: All/By_API_Name/By_Folder)
+• Condition_JSON__c (Long Text) — serialized thresholds and filters
+• Channel__c (MultiPicklist: Email/Slack/Teams/WhatsApp/Webhook)
+FS_Flow_Change__c (Version & Diff)
+• Flow_Api_Name__c (Text, Indexed) | Version__c (Number, 0)
+• Snapshot_JSON__c (Long Text) — normalized element graph
+• Hash__c (Text, Unique) — dedupe
+• Diff_Against_Version__c (Number, 0) | Diff_Summary__c (Long Text)
+• Created_By_Tool__c (Checkbox)
+FS_Flow_Document__c (Documentation)
+• Flow_Api_Name__c (Text, Indexed) | Version__c (Number, 0)
+• Markdown__c (Long Text) | Diagram_SVG__c (Long Text) | Test_Scenarios__c (Long Text)
+Optional Big Objects (Archive)
+• FS_Flow_Run_Archive__b | FS_Flow_Step_Archive__b — for long-term retention
+• Scheduled job to migrate >N days data from SObjects to Big Objects
+ER Relationships (Narrative)
+FS_Flow_Run__c (1) — (M-D many) FS_Flow_Step__c. FS_Flow_Change__c and FS_Flow_Document__c are independent, keyed by Flow_Api_Name__c + Version__c. FS_Flow_Alert__c applies to flows by API name/folder or globally.
+3) Configuration (Custom Metadata Types)
+FS_Global_Settings__mdt
+• Enable_Error_Alerts__c (Checkbox)
+• Retention_Days__c (Number)
+• Enable_CPU_Approx__c (Checkbox) •	Max_Runs_To_Retain__c (Number)
+FS_Integration_Channel__mdt
+• Channel_Name__c (Picklist)
+• Webhook_URL__c (Text)
+• Slack_Token__c (Protected Text)
+• Teams_Webhook__c (Text)
+WhatsApp_Endpoint__c (Text)
+FS_AI_Settings__mdt
+• Provider__c (Picklist: OpenAI/Azure/…)
+• Named_Credential__c (Text)
+• Model__c (Text)
+• Temperature__c (Number,2)
+4) Integrations & Callouts
+• Named Credential: FS_AI_Provider — outbound AI calls (JWT/OAuth2).
+• Named Credential: FS_Self — Tooling/REST calls to fetch Flow metadata (no Remote Site).
+• Platform Event: FS_Flow_Alert_Event__e — optional outbound alert stream.
+5) Apex Architecture (Service/Domain/Selector)
+Selectors: FS_FlowRunSelector, FS_FlowStepSelector, FS_FlowChangeSelector,
+FS_FlowDocSelector
+Domains: FS_FlowRunDomain, FS_FlowStepDomain, FS_FlowChangeDomain,
+FS_FlowDocDomain
+Services:
+• FS_LoggingService (startRun, logStep, endRun; async buffering)
+• FS_PerformanceService (scoreRun, analyzeFlow; heuristics)
+• FS_FlowMetadataService (getFlowVersionJson, normalizeToGraph)
+• FS_DiffService (diffGraphs; persist diffs)
+• FS_DocumentationService (generateMarkdown, renderDiagramSvg)
+• FS_AIService (explainFlow, generateTestScenarios, suggestOptimizations) • FS_NotifyService (Email/Slack/Teams/WhatsApp via Named Credentials) 6) Invocable Actions (Admin-Friendly Instrumentation)
+• FS_LogStartAction ? returns RunId
+• FS_LogStepAction ? accepts RunId + element info (+ counters)
+• FS_LogEndAction ? status + error + counters
+• FS_NotifyOnErrorAction ? for Fault paths
+• FS_PerformanceScoreAction ? on-demand analysis 7) LWC / UX Architecture
+• FS_App (Lightning App: FlowSense)
+• FS_Dashboard (KPIs, filters, recent alerts)
+• FS_RunExplorer (runs + step timeline + error drill-down)
+• FS_PerfHeatmap (hotspots, scores, recs)
+• FS_VersionCompare (pick flow + versions, tree diff, export)
+• FS_DocViewer (SVG diagram, Markdown docs, test scenarios)
+FS_AIAssistant (chat, context chips, actions)
+• FS_Settings (CMDT-backed configuration)
+8) Runtime Sequences (Narrative)
+Instrumented Flow Execution: Start (FS • Start Run) ? Business logic + optional FS • Log Step ? Fault path (FS • Notify On Error) ? End (FS • End Run). Apex buffers step logs and computes counters; errors raise alerts.
+Version Diff: LWC selects Flow + versions ? Apex fetches metadata (Tooling) ? normalize to graph ? diff ? persist ? display/export.
+Documentation: User clicks Generate ? graph ? Markdown + SVG ? save FS_Flow_Document__c ? export.
+Performance: Nightly job aggregates FS_Flow_Run__c + FS_Flow_Step__c ? scores + heatmap metrics ? LWC renders.
+9) Limits, Scale & Retention
+• Bulk-safe logging; batch/queueable inserts for steps.
+• Retention via FS_Global_Settings__mdt; archive to Big Objects after N days.
+• Selector-driven SOQL; server-side pagination; field-level fetches.
+• Virtualized tables in LWC for large datasets.
+10) Security Review Readiness
+• CRUD/FLS enforced in all Apex service methods (avoid System.runAs in tests).
+• Named Credentials only; no hardcoded endpoints; PII redaction in logs.
+• Permission Sets: FS_Admin, FS_Analyst, FS_Logger.
+• CSP-safe (no external JS); strict input validation & size limits.
+• Opt-out switch to disable AI/callouts per org policy.
+11) Packaging & Roadmap
+Packaging: Managed package, LMA licensing, post-install wizard to seed CMDT and create app + tabs.
+12-Week Roadmap:
+• Weeks 1–4: Data model, Invocables, Logging Service, Run Explorer LWC
+• Weeks 5–8: Performance Analyzer, Alerts (email/webhook), Dashboard
+• Weeks 9–10: Version Diff (Tooling API) + Viewer, Export
+• Weeks 11–12: Documentation (Markdown + SVG), AI Assistant, Settings, Packaging
+FlowSense provides end-to-end visibility and intelligence for Salesforce Flows — designed for scale, security, and AppExchange success.
+•
+
+•
+
+
+

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__AppPage,lightning__HomePage">
+            <property name="height" type="String" default="400px" description="Height of the notifications panel"/>
+            <property name="maxNotifications" type="Integer" default="50" description="Maximum number of notifications to display"/>
+            <property name="enableRealTime" type="Boolean" default="false" description="Enable real-time notification updates"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

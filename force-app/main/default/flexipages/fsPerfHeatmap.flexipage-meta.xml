@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Performance Heatmap - Visual performance analytics and insights</description>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentName>fsPerfHeatmap</componentName>
+                <identifier>c_fsPerfHeatmap</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>main</name>
+        <type>Region</type>
+    </flexiPageRegions>
+    <masterLabel>Performance Heatmap</masterLabel>
+    <template>
+        <name>flexipage:defaultAppHomeTemplate</name>
+    </template>
+    <type>AppPage</type>
+</FlexiPage>

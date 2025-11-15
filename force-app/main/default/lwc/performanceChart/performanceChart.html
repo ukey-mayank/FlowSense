@@ -1,0 +1,21 @@
+<template>
+    <div class="chart-container">
+        <template if:true={chartTitle}>
+            <h3 class="chart-title">{chartTitle}</h3>
+        </template>
+        
+        <div class="canvas-container" style={containerStyle}>
+            <canvas class="performance-chart"></canvas>
+        </div>
+        
+        <template if:false={isChartJsLoaded}>
+            <div class="loading-container">
+                <lightning-spinner 
+                    alternative-text="Loading chart..."
+                    size="medium">
+                </lightning-spinner>
+                <p class="loading-text">Loading chart...</p>
+            </div>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Flow Run Explorer - Detailed execution analysis and performance insights</description>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentName>fsRunExplorer</componentName>
+                <identifier>c_fsRunExplorer</identifier>
+            </componentInstance>
+        </itemInstances>
+        <name>main</name>
+        <type>Region</type>
+    </flexiPageRegions>
+    <masterLabel>Flow Run Explorer</masterLabel>
+    <template>
+        <name>flexipage:defaultAppHomeTemplate</name>
+    </template>
+    <type>AppPage</type>
+</FlexiPage>

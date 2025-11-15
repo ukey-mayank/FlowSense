@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <actionCalls>
+        <name>Start_FlowSense_Logging</name>
+        <label>Start FlowSense Logging</label>
+        <locationX>176</locationX>
+        <locationY>158</locationY>
+        <actionName>FS_LogStartAction</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Process_Account_Records</targetReference>
+        </connector>
+        <inputParameters>
+            <name>flowApiName</name>
+            <value>
+                <stringValue>Sample_Account_Processing_Flow</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>flowLabel</name>
+            <value>
+                <stringValue>Sample Account Processing Flow</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>triggerContext</name>
+            <value>
+                <stringValue>Manual</stringValue>
+            </value>
+        </inputParameters>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <actionCalls>
+        <name>End_FlowSense_Logging</name>
+        <label>End FlowSense Logging</label>
+        <locationX>176</locationX>
+        <locationY>518</locationY>
+        <actionName>FS_LogEndAction</actionName>
+        <actionType>apex</actionType>
+        <inputParameters>
+            <name>interviewId</name>
+            <value>
+                <elementReference>Start_FlowSense_Logging.interviewId</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>status</name>
+            <value>
+                <stringValue>Success</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>errorMessage</name>
+            <value>
+                <stringValue></stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <assignments>
+        <name>Process_Account_Records</name>
+        <label>Process Account Records</label>
+        <locationX>176</locationX>
+        <locationY>338</locationY>
+        <assignmentItems>
+            <assignToReference>ProcessedCount</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>End_FlowSense_Logging</targetReference>
+        </connector>
+    </assignments>
+    <description>Sample flow to demonstrate FlowSense monitoring capabilities</description>
+    <interviewLabel>Sample Account Processing Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Sample Account Processing Flow</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Start_FlowSense_Logging</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>ProcessedCount</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+</Flow>

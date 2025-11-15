@@ -1,0 +1,342 @@
+<template>
+    <div class="heatmap-container" style={containerStyle}>
+        <div class="modern-card">
+            <div class="card-header">
+                <div class="header-icon">
+                    <lightning-icon icon-name="utility:trending" size="medium"></lightning-icon>
+                </div>
+                <div class="header-content">
+                    <h1 class="card-title">Flow Performance Heatmap</h1>
+                    <p class="card-subtitle">Visual performance analytics and trend analysis</p>
+                </div>
+                <div class="header-actions">
+                    <div class="action-buttons">
+                        <lightning-button variant="neutral" icon-name="utility:refresh" label="Refresh" onclick={refreshData}></lightning-button>
+                        <lightning-button variant="neutral" icon-name="utility:download" label="Export" onclick={exportData}></lightning-button>
+                        <lightning-button variant="brand" icon-name="utility:settings" label="Configure" onclick={openSettings}></lightning-button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-content">
+                <!-- Enhanced Filters -->
+                <div class="filter-section">
+                    <div class="filter-header">
+                        <h3 class="filter-title">
+                            <lightning-icon icon-name="utility:filter" size="small"></lightning-icon>
+                            Filters & Settings
+                        </h3>
+                        <lightning-button variant="neutral" label="Clear All" onclick={clearFilters}></lightning-button>
+                    </div>
+                    <div class="filter-grid">
+                        <div class="filter-item">
+                            <lightning-combobox
+                                label="Time Range"
+                                value={selectedTimeRange}
+                                options={timeRangeOptions}
+                                onchange={handleTimeRangeChange}
+                                variant="label-stacked">
+                            </lightning-combobox>
+                        </div>
+                        <div class="filter-item">
+                            <lightning-combobox
+                                label="Flow Type"
+                                value={selectedFlowType}
+                                options={flowTypeOptions}
+                                onchange={handleFlowTypeChange}
+                                variant="label-stacked">
+                            </lightning-combobox>
+                        </div>
+                        <div class="filter-item">
+                            <lightning-combobox
+                                label="Performance Metric"
+                                value={selectedMetric}
+                                options={metricOptions}
+                                onchange={handleMetricChange}
+                                variant="label-stacked">
+                            </lightning-combobox>
+                        </div>
+                        <div class="filter-item">
+                            <lightning-input
+                                type="search"
+                                label="Search Flows"
+                                value={searchTerm}
+                                onchange={handleSearchChange}
+                                placeholder="Enter flow name..."
+                                variant="label-stacked">
+                            </lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Performance Overview -->
+                <div class="overview-section">
+                    <div class="overview-header">
+                        <h3 class="section-title">
+                            <lightning-icon icon-name="utility:graph" size="small"></lightning-icon>
+                            Performance Overview
+                        </h3>
+                        <div class="overview-actions">
+                            <lightning-button variant="neutral" label="View Trends" onclick={viewTrends}></lightning-button>
+                        </div>
+                    </div>
+                    <div class="metrics-dashboard">
+                        <div class="metric-tile critical">
+                            <div class="tile-header">
+                                <div class="tile-icon critical">
+                                    <lightning-icon icon-name="utility:error" size="small"></lightning-icon>
+                                </div>
+                                <div class="tile-trend">
+                                    <lightning-icon icon-name="utility:trending_up" size="x-small"></lightning-icon>
+                                    <span class="trend-text">+12%</span>
+                                </div>
+                            </div>
+                            <div class="tile-content">
+                                <div class="metric-value critical-value">{criticalFlows}</div>
+                                <div class="metric-label">Critical Flows</div>
+                                <div class="metric-description">Requires immediate attention</div>
+                            </div>
+                            <div class="tile-indicator critical-indicator"></div>
+                        </div>
+                        
+                        <div class="metric-tile warning">
+                            <div class="tile-header">
+                                <div class="tile-icon warning">
+                                    <lightning-icon icon-name="utility:warning" size="small"></lightning-icon>
+                                </div>
+                                <div class="tile-trend">
+                                    <lightning-icon icon-name="utility:trending_down" size="x-small"></lightning-icon>
+                                    <span class="trend-text">-5%</span>
+                                </div>
+                            </div>
+                            <div class="tile-content">
+                                <div class="metric-value warning-value">{warningFlows}</div>
+                                <div class="metric-label">Warning Flows</div>
+                                <div class="metric-description">Performance degraded</div>
+                            </div>
+                            <div class="tile-indicator warning-indicator"></div>
+                        </div>
+                        
+                        <div class="metric-tile success">
+                            <div class="tile-header">
+                                <div class="tile-icon success">
+                                    <lightning-icon icon-name="utility:success" size="small"></lightning-icon>
+                                </div>
+                                <div class="tile-trend">
+                                    <lightning-icon icon-name="utility:trending_up" size="x-small"></lightning-icon>
+                                    <span class="trend-text">+8%</span>
+                                </div>
+                            </div>
+                            <div class="tile-content">
+                                <div class="metric-value success-value">{healthyFlows}</div>
+                                <div class="metric-label">Healthy Flows</div>
+                                <div class="metric-description">Optimal performance</div>
+                            </div>
+                            <div class="tile-indicator success-indicator"></div>
+                        </div>
+                        
+                        <div class="metric-tile neutral">
+                            <div class="tile-header">
+                                <div class="tile-icon neutral">
+                                    <lightning-icon icon-name="utility:clock" size="small"></lightning-icon>
+                                </div>
+                                <div class="tile-trend">
+                                    <lightning-icon icon-name="utility:dash" size="x-small"></lightning-icon>
+                                    <span class="trend-text">0%</span>
+                                </div>
+                            </div>
+                            <div class="tile-content">
+                                <div class="metric-value neutral-value">{averagePerformance}ms</div>
+                                <div class="metric-label">Average Performance</div>
+                                <div class="metric-description">Last 24 hours</div>
+                            </div>
+                            <div class="tile-indicator neutral-indicator"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Heatmap Visualization -->
+                <div class="heatmap-section">
+                    <div class="heatmap-header">
+                        <h3 class="section-title">
+                            <lightning-icon icon-name="utility:matrix" size="small"></lightning-icon>
+                            Performance Heatmap
+                        </h3>
+                        <div class="heatmap-controls">
+                            <lightning-button-group>
+                                <lightning-button label="Grid View" variant="neutral" onclick={setGridView}></lightning-button>
+                                <lightning-button label="Chart View" variant="neutral" onclick={setChartView}></lightning-button>
+                                <lightning-button label="List View" variant="neutral" onclick={setListView}></lightning-button>
+                            </lightning-button-group>
+                        </div>
+                    </div>
+                    
+                    <template if:true={isLoading}>
+                        <div class="loading-container">
+                            <div class="loading-content">
+                                <lightning-spinner alternative-text="Loading heatmap..." variant="brand" size="large"></lightning-spinner>
+                                <p class="loading-text">Analyzing flow performance data...</p>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <template if:false={isLoading}>
+                        <div class="heatmap-legend">
+                            <div class="legend-header">
+                                <span class="legend-title">Performance Scale</span>
+                                <lightning-button variant="neutral" label="Customize" onclick={customizeLegend}></lightning-button>
+                            </div>
+                            <div class="legend-items">
+                                <div class="legend-item">
+                                    <div class="legend-color excellent"></div>
+                                    <span class="legend-label">Excellent</span>
+                                    <span class="legend-range">&lt;1s</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color good"></div>
+                                    <span class="legend-label">Good</span>
+                                    <span class="legend-range">1-3s</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color fair"></div>
+                                    <span class="legend-label">Fair</span>
+                                    <span class="legend-range">3-10s</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color poor"></div>
+                                    <span class="legend-label">Poor</span>
+                                    <span class="legend-range">10-30s</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color critical"></div>
+                                    <span class="legend-label">Critical</span>
+                                    <span class="legend-range">&gt;30s</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="heatmap-visualization" lwc:dom="manual"></div>
+                    </template>
+                </div>
+
+                <!-- Enhanced Flow Details Panel -->
+                <template if:true={selectedFlow}>
+                    <div class="details-panel">
+                        <div class="details-card">
+                            <div class="details-header">
+                                <div class="details-title-section">
+                                    <h3 class="details-title">{selectedFlow.FlowName}</h3>
+                                    <div class="details-badges">
+                                        <lightning-badge label={selectedFlow.FlowType} variant="neutral"></lightning-badge>
+                                        <lightning-badge label={selectedFlow.Status} variant={selectedFlow.statusVariant}></lightning-badge>
+                                    </div>
+                                </div>
+                                <div class="details-actions">
+                                    <lightning-button variant="neutral" label="View Runs" onclick={viewFlowRuns}></lightning-button>
+                                    <lightning-button variant="brand" label="Analyze" onclick={analyzeFlow}></lightning-button>
+                                    <lightning-button-icon icon-name="utility:close" variant="bare" onclick={closeDetails} title="Close"></lightning-button-icon>
+                                </div>
+                            </div>
+                            
+                            <div class="details-content">
+                                <div class="details-metrics">
+                                    <div class="metric-section">
+                                        <h4 class="metric-section-title">Performance Metrics</h4>
+                                        <div class="metric-grid">
+                                            <div class="metric-item">
+                                                <div class="metric-icon performance">
+                                                    <lightning-icon icon-name="utility:clock" size="small"></lightning-icon>
+                                                </div>
+                                                <div class="metric-info">
+                                                    <span class="metric-label">Average Duration</span>
+                                                    <span class="metric-value">{selectedFlow.AverageDuration}ms</span>
+                                                </div>
+                                            </div>
+                                            <div class="metric-item">
+                                                <div class="metric-icon runs">
+                                                    <lightning-icon icon-name="utility:flow" size="small"></lightning-icon>
+                                                </div>
+                                                <div class="metric-info">
+                                                    <span class="metric-label">Total Runs</span>
+                                                    <span class="metric-value">{selectedFlow.TotalRuns}</span>
+                                                </div>
+                                            </div>
+                                            <div class="metric-item">
+                                                <div class="metric-icon error">
+                                                    <lightning-icon icon-name="utility:error" size="small"></lightning-icon>
+                                                </div>
+                                                <div class="metric-info">
+                                                    <span class="metric-label">Error Rate</span>
+                                                    <span class="metric-value error-rate">{selectedFlow.ErrorRate}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="metric-section">
+                                        <h4 class="metric-section-title">Resource Usage</h4>
+                                        <div class="metric-grid">
+                                            <div class="metric-item">
+                                                <div class="metric-icon">
+                                                    <lightning-icon icon-name="utility:peak" size="small"></lightning-icon>
+                                                </div>
+                                                <div class="metric-info">
+                                                    <span class="metric-label">Peak Duration</span>
+                                                    <span class="metric-value">{selectedFlow.PeakDuration}ms</span>
+                                                </div>
+                                            </div>
+                                            <div class="metric-item">
+                                                <div class="metric-icon">
+                                                    <lightning-icon icon-name="utility:database" size="small"></lightning-icon>
+                                                </div>
+                                                <div class="metric-info">
+                                                    <span class="metric-label">Avg SOQL Queries</span>
+                                                    <span class="metric-value">{selectedFlow.AverageSoqlQueries}</span>
+                                                </div>
+                                            </div>
+                                            <div class="metric-item">
+                                                <div class="metric-icon">
+                                                    <lightning-icon icon-name="utility:memory" size="small"></lightning-icon>
+                                                </div>
+                                                <div class="metric-info">
+                                                    <span class="metric-label">Avg Heap Size</span>
+                                                    <span class="metric-value">{selectedFlow.AverageHeapSize}KB</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Performance Trend Chart -->
+                                <div class="trend-section">
+                                    <div class="trend-header">
+                                        <h4 class="trend-title">Performance Trend Analysis</h4>
+                                        <div class="trend-controls">
+                                            <lightning-combobox
+                                                label="Time Period"
+                                                value={trendPeriod}
+                                                options={trendPeriodOptions}
+                                                onchange={handleTrendPeriodChange}
+                                                variant="label-hidden">
+                                            </lightning-combobox>
+                                        </div>
+                                    </div>
+                                    <div class="trend-chart" lwc:dom="manual"></div>
+                                    <div class="trend-insights">
+                                        <div class="insight-card">
+                                            <lightning-icon icon-name="utility:trend_up" size="small"></lightning-icon>
+                                            <div class="insight-content">
+                                                <span class="insight-title">Trend Analysis</span>
+                                                <span class="insight-description">{trendInsight}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

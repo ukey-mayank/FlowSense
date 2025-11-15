@@ -1,0 +1,194 @@
+<template>
+    <div class="smart-notifications" style={containerStyle}>
+        
+        <!-- Header Section -->
+        <div class="notifications-header">
+            <div class="header-title">
+                <lightning-icon icon-name="utility:notification" size="small" class="notification-icon"></lightning-icon>
+                <h3 class="title-text">Smart Notifications</h3>
+                <span class="unread-badge" if:true={unreadCount}>{unreadCount}</span>
+            </div>
+            
+            <div class="header-actions">
+                <lightning-button-icon
+                    icon-name="utility:check"
+                    variant="border-filled"
+                    alternative-text="Mark all as read"
+                    title="Mark all as read"
+                    onclick={handleMarkAllAsRead}
+                    disabled={unreadCount}>
+                </lightning-button-icon>
+                
+                <lightning-button-icon
+                    icon-name="utility:clear"
+                    variant="border-filled"
+                    alternative-text="Clear all"
+                    title="Clear all"
+                    onclick={handleClearAll}
+                    disabled={hasNotifications}>
+                </lightning-button-icon>
+                
+                <lightning-button-icon
+                    icon-name="utility:settings"
+                    variant="border-filled"
+                    alternative-text="Settings"
+                    title="Notification settings"
+                    onclick={handleSettingsToggle}>
+                </lightning-button-icon>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <template if:true={showSettings}>
+            <div class="settings-panel">
+                <h4 class="settings-title">Notification Settings</h4>
+                
+                <div class="settings-grid">
+                    <!-- Alert Type Settings -->
+                    <div class="setting-group">
+                        <h5 class="setting-group-title">Alert Types</h5>
+                        
+                        <lightning-input
+                            type="checkbox"
+                            name="enableInAppAlerts"
+                            label="In-App Notifications"
+                            checked={notificationSettings.enableInAppAlerts}
+                            onchange={handleSettingsChange}>
+                        </lightning-input>
+                        
+                        <lightning-input
+                            type="checkbox"
+                            name="enableEmailAlerts"
+                            label="Email Alerts"
+                            checked={notificationSettings.enableEmailAlerts}
+                            onchange={handleSettingsChange}>
+                        </lightning-input>
+                        
+                        <lightning-input
+                            type="checkbox"
+                            name="enableSMSAlerts"
+                            label="SMS Alerts"
+                            checked={notificationSettings.enableSMSAlerts}
+                            onchange={handleSettingsChange}>
+                        </lightning-input>
+                    </div>
+                    
+                    <!-- Threshold Settings -->
+                    <div class="setting-group">
+                        <h5 class="setting-group-title">Alert Thresholds</h5>
+                        
+                        <lightning-input
+                            type="number"
+                            name="performanceThreshold"
+                            label="Performance Score (%)"
+                            value={notificationSettings.performanceThreshold}
+                            min="0"
+                            max="100"
+                            onchange={handleSettingsChange}>
+                        </lightning-input>
+                        
+                        <lightning-input
+                            type="number"
+                            name="executionTimeThreshold"
+                            label="Max Execution Time (ms)"
+                            value={notificationSettings.executionTimeThreshold}
+                            min="1000"
+                            onchange={handleSettingsChange}>
+                        </lightning-input>
+                        
+                        <lightning-input
+                            type="number"
+                            name="cpuTimeThreshold"
+                            label="Max CPU Time (ms)"
+                            value={notificationSettings.cpuTimeThreshold}
+                            min="500"
+                            onchange={handleSettingsChange}>
+                        </lightning-input>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Notifications List -->
+        <div class="notifications-container">
+            
+            <!-- Loading State -->
+            <template if:true={isLoading}>
+                <div class="loading-container">
+                    <lightning-spinner alternative-text="Loading notifications..." size="medium"></lightning-spinner>
+                    <p class="loading-text">Loading notifications...</p>
+                </div>
+            </template>
+            
+            <!-- Error State -->
+            <template if:true={error}>
+                <div class="error-container">
+                    <lightning-icon icon-name="utility:error" variant="error" size="medium"></lightning-icon>
+                    <p class="error-text">{error}</p>
+                </div>
+            </template>
+            
+            <!-- Empty State -->
+            <template if:true={showEmptyState}>
+                <div class="empty-state">
+                    <lightning-icon icon-name="utility:notification" size="large" class="empty-icon"></lightning-icon>
+                    <h4 class="empty-title">No Notifications</h4>
+                    <p class="empty-description">You're all caught up! New notifications will appear here.</p>
+                </div>
+            </template>
+            
+            <!-- Notifications List -->
+            <template if:true={showNotificationsList}>
+                <div class="notifications-list">
+                    <template for:each={sortedNotifications} for:item="notification">
+                        <div key={notification.id} 
+                             class="notification-item"
+                             data-id={notification.id}
+                             onclick={handleNotificationClick}>
+                            
+                            <!-- Notification Icon -->
+                            <div class="notification-icon-container">
+                                <lightning-icon 
+                                    icon-name="utility:notification"
+                                    size="small"
+                                    class="notification-category-icon">
+                                </lightning-icon>
+                                <template if:false={notification.isRead}>
+                                    <div class="unread-indicator"></div>
+                                </template>
+                            </div>
+                            
+                            <!-- Notification Content -->
+                            <div class="notification-content">
+                                <div class="notification-header">
+                                    <h4 class="notification-title">{notification.title}</h4>
+                                    <span class="notification-timestamp">{notification.timestamp}</span>
+                                </div>
+                                
+                                <p class="notification-message">{notification.message}</p>
+                                
+                                <div class="notification-metadata">
+                                    <span class="flow-name">
+                                        <lightning-icon icon-name="utility:flow" size="x-small"></lightning-icon>
+                                        {notification.flowName}
+                                    </span>
+                                    
+                                    <template if:true={notification.threshold}>
+                                        <span class="threshold-info">
+                                            Threshold: {notification.threshold} | Actual: {notification.actualValue}
+                                        </span>
+                                    </template>
+                                </div>
+                            </div>
+                            
+                            <!-- Severity Badge -->
+                            <div class="severity-badge">
+                                {notification.severity}
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

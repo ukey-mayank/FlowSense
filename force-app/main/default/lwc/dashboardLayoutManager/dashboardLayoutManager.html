@@ -1,0 +1,171 @@
+<template>
+    <div class="dashboard-layout-manager">
+        
+        <!-- Layout Controls -->
+        <template if:true={enableCustomization}>
+            <div class="layout-controls">
+                <div class="controls-header">
+                    <h3 class="controls-title">
+                        <lightning-icon icon-name="utility:settings" size="small"></lightning-icon>
+                        Dashboard Customization
+                    </h3>
+                    
+                    <div class="controls-actions">
+                        <lightning-button
+                            label={editButtonLabel}
+                            variant={editButtonVariant}
+                            icon-name={editButtonIcon}
+                            onclick={handleEditModeToggle}>
+                        </lightning-button>
+                        
+                        <lightning-button
+                            label="Save Layout"
+                            variant="brand"
+                            icon-name="utility:save"
+                            onclick={handleSaveLayout}
+                            disabled={isEditMode}>
+                        </lightning-button>
+                        
+                        <lightning-button
+                            label="Reset"
+                            variant="destructive-text"
+                            icon-name="utility:refresh"
+                            onclick={handleResetLayout}>
+                        </lightning-button>
+                    </div>
+                </div>
+                
+                <!-- Layout Configuration -->
+                <div class="layout-configuration">
+                    <div class="config-row">
+                        <lightning-combobox
+                            name="layoutType"
+                            label="Layout Type"
+                            value={layoutConfig.type}
+                            placeholder="Select layout"
+                            options={layoutOptions}
+                            onchange={handleLayoutChange}
+                            class="layout-selector">
+                        </lightning-combobox>
+                        
+                        <!-- Widget Gallery -->
+                        <template if:true={isEditMode}>
+                            <div class="widget-gallery">
+                                <h4 class="gallery-title">Add Widgets</h4>
+                                <div class="widget-options">
+                                    <template for:each={availableWidgets} for:item="widgetType">
+                                        <button key={widgetType.type}
+                                                class="widget-option"
+                                                data-type={widgetType.type}
+                                                onclick={handleWidgetAdd}>
+                                            <lightning-icon 
+                                                icon-name={widgetType.icon} 
+                                                size="small">
+                                            </lightning-icon>
+                                            <span class="widget-label">{widgetType.label}</span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Dashboard Layout -->
+        <div class="dashboard-layout-container">
+            
+            <!-- Empty State -->
+            <template if:false={hasWidgets}>
+                <div class="empty-dashboard">
+                    <lightning-icon icon-name="utility:dashboard" size="large" class="empty-icon"></lightning-icon>
+                    <h3 class="empty-title">No Widgets Added</h3>
+                    <p class="empty-description">
+                        {emptyStateMessage}
+                    </p>
+                    <template if:true={enableCustomization}>
+                        <lightning-button
+                            label="Add Your First Widget"
+                            variant="brand"
+                            onclick={handleEditModeToggle}>
+                        </lightning-button>
+                    </template>
+                </div>
+            </template>
+            
+            <!-- Widgets Grid -->
+            <template if:true={hasWidgets}>
+                <div class="dashboard-grid">
+                    <template for:each={widgets} for:item="widget">
+                        <div key={widget.id} class="widget-container">
+                            
+                            <!-- Widget Header (Edit Mode) -->
+                            <template if:true={isEditMode}>
+                                <div class="widget-header">
+                                    <div class="widget-info">
+                                        <lightning-icon icon-name="utility:apps" size="x-small"></lightning-icon>
+                                        <span class="widget-type">{widget.type}</span>
+                                    </div>
+                                    
+                                    <div class="widget-actions">
+                                        <lightning-button-icon
+                                            icon-name="utility:settings"
+                                            variant="border-filled"
+                                            alternative-text="Configure widget"
+                                            title="Configure"
+                                            size="x-small"
+                                            data-widget-id={widget.id}
+                                            onclick={handleWidgetConfigure}>
+                                        </lightning-button-icon>
+                                        
+                                        <lightning-button-icon
+                                            icon-name="utility:copy"
+                                            variant="border-filled"
+                                            alternative-text="Duplicate widget"
+                                            title="Duplicate"
+                                            size="x-small"
+                                            data-widget-id={widget.id}
+                                            onclick={handleWidgetDuplicate}>
+                                        </lightning-button-icon>
+                                        
+                                        <lightning-button-icon
+                                            icon-name="utility:delete"
+                                            variant="border-filled"
+                                            alternative-text="Remove widget"
+                                            title="Remove"
+                                            size="x-small"
+                                            data-widget-id={widget.id}
+                                            onclick={handleWidgetRemove}>
+                                        </lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                            
+                            <!-- Widget Content -->
+                            <div class="widget-content">
+                                <!-- Dynamic Widget Content -->
+                                <template if:true={widget.type}>
+                                    <div class="widget-placeholder">
+                                        <h4>{widget.type} Widget</h4>
+                                        <p>Configuration: {widget.config}</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+        
+        <!-- Real-time Status Indicator -->
+        <template if:true={showRealTimeStatus}>
+            <div class="realtime-status">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Live Updates Active</span>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>

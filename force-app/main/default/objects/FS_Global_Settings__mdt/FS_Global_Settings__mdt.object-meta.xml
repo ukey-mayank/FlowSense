@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>FlowSense Global Settings</label>
+    <pluralLabel>FlowSense Global Settings</pluralLabel>
+    <description>Global configuration settings for FlowSense monitoring and analysis</description>
+    <visibility>Public</visibility>
+    
+    <!-- Core Settings -->
+    <fields>
+        <fullName>Enable_Error_Alerts__c</fullName>
+        <defaultValue>true</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Enable Error Alerts</label>
+        <type>Checkbox</type>
+    </fields>
+    
+    <fields>
+        <fullName>Retention_Days__c</fullName>
+        <defaultValue>90</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Retention Days</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    
+    <fields>
+        <fullName>Max_Runs_To_Retain__c</fullName>
+        <defaultValue>100000</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Max Runs to Retain</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    
+    <!-- Performance Monitoring -->
+    <fields>
+        <fullName>Enable_CPU_Monitoring__c</fullName>
+        <defaultValue>true</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Enable CPU Monitoring</label>
+        <type>Checkbox</type>
+    </fields>
+    
+    <fields>
+        <fullName>CPU_Warning_Threshold_Ms__c</fullName>
+        <defaultValue>5000</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>CPU Warning Threshold (ms)</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    
+    <fields>
+        <fullName>CPU_Critical_Threshold_Ms__c</fullName>
+        <defaultValue>10000</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>CPU Critical Threshold (ms)</label>
+        <precision>10</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    
+    <fields>
+        <fullName>SOQL_Warning_Threshold__c</fullName>
+        <defaultValue>50</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>SOQL Warning Threshold</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    
+    <fields>
+        <fullName>SOQL_Critical_Threshold__c</fullName>
+        <defaultValue>90</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>SOQL Critical Threshold</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    
+    <fields>
+        <fullName>DML_Warning_Threshold__c</fullName>
+        <defaultValue>100</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>DML Warning Threshold</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    
+    <fields>
+        <fullName>DML_Critical_Threshold__c</fullName>
+        <defaultValue>140</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>DML Critical Threshold</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    
+    <!-- Step Logging -->
+    <fields>
+        <fullName>Enable_Step_Logging__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Enable Step Logging</label>
+        <type>Checkbox</type>
+    </fields>
+    
+    <fields>
+        <fullName>Step_Logging_Sample_Rate__c</fullName>
+        <defaultValue>10</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Step Logging Sample Rate (%)</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <type>Number</type>
+    </fields>
+    
+    <!-- Debug and Development -->
+    <fields>
+        <fullName>Enable_Debug_Logging__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Enable Debug Logging</label>
+        <type>Checkbox</type>
+    </fields>
+    
+    <!-- Batch Processing -->
+    <fields>
+        <fullName>Batch_Size__c</fullName>
+        <defaultValue>200</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Batch Size</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+    
+    <fields>
+        <fullName>Enable_Async_Processing__c</fullName>
+        <defaultValue>true</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Enable Async Processing</label>
+        <type>Checkbox</type>
+    </fields>
+    
+    <!-- Documentation Settings -->
+    <fields>
+        <fullName>Auto_Generate_Documentation__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Auto Generate Documentation</label>
+        <type>Checkbox</type>
+    </fields>
+    
+    <fields>
+        <fullName>Documentation_Template__c</fullName>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Documentation Template</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+    </fields>
+    
+    <!-- Archive Retention -->
+    <fields>
+        <fullName>Archive_Retention_Days__c</fullName>
+        <defaultValue>365</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Archive Retention Days</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+    </fields>
+</CustomObject>

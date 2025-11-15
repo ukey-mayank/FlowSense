@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>FS_Global_Settings__mdt</members>
+        <members>FS_Integration_Channel__mdt</members>
+        <members>FS_AI_Settings__mdt</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>FS_Global_Settings.Default</members>
+        <members>FS_Integration_Channel.Email</members>
+        <name>CustomMetadata</name>
+    </types>
+    <version>65.0</version>
+</Package>
+

@@ -1,0 +1,94 @@
+/* ===== Performance Chart Component ===== */
+.chart-container {
+    background: var(--theme-card-bg, #ffffff);
+    border: 1px solid var(--theme-border-color, #e5e5e5);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: var(--theme-shadow, 0 4px 6px rgba(0, 0, 0, 0.07));
+    transition: all 0.2s ease;
+    font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.chart-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.chart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--theme-text-primary, #181818);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.canvas-container {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+}
+
+.performance-chart {
+    width: 100% !important;
+    height: auto !important;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    color: var(--theme-text-secondary, #706e6b);
+}
+
+.loading-text {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: var(--theme-text-secondary, #706e6b);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .chart-container {
+        padding: 1rem;
+    }
+    
+    .chart-title {
+        font-size: 1.125rem;
+    }
+    
+    .canvas-container {
+        min-height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chart-container {
+        padding: 0.75rem;
+        margin: 0 -0.5rem;
+        border-radius: 0.5rem;
+    }
+    
+    .canvas-container {
+        min-height: 200px;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .chart-container {
+        transition: none;
+    }
+    
+    .chart-container:hover {
+        transform: none;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .chart-container {
+        border-width: 2px;
+    }
+}

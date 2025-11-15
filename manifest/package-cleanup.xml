@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>FS_PerformanceScoreAction</members>
+        <members>FS_LoggingService</members>
+        <members>FS_LogStepAction</members>
+        <members>FS_SettingsUtil</members>
+        <name>ApexClass</name>
+    </types>
+    <version>65.0</version>
+</Package>
+
