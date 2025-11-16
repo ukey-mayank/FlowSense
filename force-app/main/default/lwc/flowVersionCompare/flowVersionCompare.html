@@ -1,207 +1,334 @@
 <template>
-    <lightning-card>
-        
-        <!-- Input Section -->
-        <div class="slds-card__body slds-card__body_inner">
-            <div class="slds-grid slds-gutters slds-wrap">
-                
-                <!-- Flow Selection -->
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
-                    <lightning-combobox
-                        name="flowApiName"
-                        label="Flow API Name"
-                        value={flowApiName}
-                        placeholder="Select a flow..."
-                        options={flowOptions}
-                        onchange={handleFlowChange}
-                        required>
-                    </lightning-combobox>
+    <div class="version-compare-container">
+        <div class="modern-card">
+            <div class="card-header">
+                <div class="header-icon">
+                    <lightning-icon icon-name="utility:versions" size="medium"></lightning-icon>
                 </div>
-
-                <!-- From Version -->
-                <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-3">
-                    <lightning-input
-                        name="fromVersion"
-                        label="From Version"
-                        type="number"
-                        value={fromVersion}
-                        min="1"
-                        onchange={handleFromVersionChange}
-                        required>
-                    </lightning-input>
-                </div>
-
-                <!-- To Version -->
-                <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-3">
-                    <lightning-input
-                        name="toVersion"
-                        label="To Version"
-                        type="number"
-                        value={toVersion}
-                        min="1"
-                        onchange={handleToVersionChange}
-                        required>
-                    </lightning-input>
+                <div class="header-content">
+                    <h1 class="card-title">Flow Version Compare</h1>
+                    <p class="card-subtitle">Analyze differences and performance changes between flow versions</p>
                 </div>
 
             </div>
-
-            <!-- Compare Button -->
-            <div class="slds-m-top_medium">
-                <lightning-button
-                    variant="brand"
-                    label="Compare Versions"
-                    onclick={handleCompare}
-                    disabled={isLoading}>
-                </lightning-button>
-                
-                <template if:true={isLoading}>
-                    <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
-                </template>
-            </div>
-        </div>
-
-        <!-- Results Section -->
-        <template if:true={hasResult}>
-            <div class="slds-card__body slds-card__body_inner slds-border_top">
-                
-                <!-- Comparison Header -->
-                <div class="slds-grid slds-gutters slds-m-bottom_medium">
-                    <div class="slds-col slds-size_1-of-1">
-                        <h2 class="slds-text-heading_medium">
-                            {comparisonResult.flowApiName} 
-                            <span class="slds-text-color_weak">
-                                (v{comparisonResult.fromVersion} → v{comparisonResult.toVersion})
-                            </span>
-                        </h2>
-                        <p class="slds-text-body_small slds-text-color_weak">
-                            Compared on {comparisonResult.comparisonDate}
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Performance Metrics -->
-                <template if:true={performanceData}>
-                    <div class="slds-m-bottom_large">
-                        <h3 class="slds-text-heading_small slds-m-bottom_small">Performance Changes</h3>
-                        <div class="slds-grid slds-gutters slds-wrap">
-                            <template for:each={performanceData} for:item="metric">
-                                <div key={metric.metric} class="slds-col slds-size_1-of-2 slds-medium-size_1-of-4">
-                                    <div class="performance-metric">
-                                        <lightning-icon 
-                                            icon-name={metric.icon} 
-                                            size="x-small" 
-                                            variant={metric.isPositive} 
-                                            class="slds-m-right_x-small">
-                                        </lightning-icon>
-                                        <span class="metric-value" data-positive={metric.isPositive}>
-                                            {metric.improvement}%
-                                        </span>
-                                        <div class="metric-label">{metric.metric}</div>
-                                    </div>
-                                </div>
-                            </template>
+            
+            <div class="card-content">
+                <!-- Enhanced Input Section -->
+                <div class="input-section">
+                    <h3 class="section-title">
+                        <lightning-icon icon-name="utility:settings" size="small"></lightning-icon>
+                        Configuration
+                    </h3>
+                    <div class="input-grid">
+                        <div class="input-item">
+                            <lightning-combobox
+                                name="flowApiName"
+                                label="Flow API Name"
+                                value={flowApiName}
+                                placeholder="Select a flow..."
+                                options={flowOptions}
+                                onchange={handleFlowChange}
+                                variant="label-stacked"
+                                required>
+                            </lightning-combobox>
                         </div>
-
-                        <!-- Risk Score -->
-                        <div class="slds-m-top_medium">
-                            <div class={riskLevelClass}>
-                                Risk Score: {comparisonResult.performanceChange.riskScore}/10
-                                <span class="risk-level">({riskLevel} risk)</span>
+                        <div class="input-item compact">
+                            <lightning-input
+                                name="fromVersion"
+                                label="From Version"
+                                type="number"
+                                value={fromVersion}
+                                min="1"
+                                onchange={handleFromVersionChange}
+                                variant="label-stacked"
+                                required>
+                            </lightning-input>
+                        </div>
+                        <div class="input-item compact">
+                            <lightning-input
+                                name="toVersion"
+                                label="To Version"
+                                type="number"
+                                value={toVersion}
+                                min="1"
+                                onchange={handleToVersionChange}
+                                variant="label-stacked"
+                                required>
+                            </lightning-input>
+                        </div>
+                        <div class="input-item action-item">
+                            <div class="button-container">
+                                <template if:false={isLoading}>
+                                    <lightning-button 
+                                        variant="brand" 
+                                        label="Compare Versions" 
+                                        icon-name="utility:compare" 
+                                        onclick={handleCompare}
+                                        disabled={isLoading}
+                                        class="compare-button">
+                                    </lightning-button>
+                                </template>
+                                <template if:true={isLoading}>
+                                    <div class="loading-indicator">
+                                        <lightning-spinner alternative-text="Comparing versions..." size="small"></lightning-spinner>
+                                        <span class="loading-text">Analyzing...</span>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                     </div>
-                </template>
+                </div>
 
-                <!-- Element Changes -->
-                <template if:true={hasElementChanges}>
-                    <div class="slds-m-bottom_large">
-                        <h3 class="slds-text-heading_small slds-m-bottom_small">Element Changes</h3>
-                        <div class="change-list">
-                            <template for:each={comparisonResult.elementChanges} for:item="change">
-                                <div key={change.elementName} class="change-item">
-                                    <span class={change.changeType}>
-                                        {change.changeType}
-                                    </span>
-                                    <span class="element-type">{change.elementType}</span>
-                                    <span class="element-name">{change.elementName}</span>
-                                    <div class="change-description">{change.description}</div>
-                                </div>
-                            </template>
+                <!-- Results Section -->
+                <template if:true={hasResult}>
+                    <!-- Comparison Header -->
+                    <div class="results-header">
+                        <div class="comparison-info">
+                            <h2 class="flow-title">{comparisonResult.flowApiName}</h2>
+                            <div class="version-badge">
+                                <span class="from-version">v{comparisonResult.fromVersion}</span>
+                                <lightning-icon icon-name="utility:forward" size="x-small"></lightning-icon>
+                                <span class="to-version">v{comparisonResult.toVersion}</span>
+                            </div>
+                            <p class="comparison-date">
+                                <lightning-icon icon-name="utility:clock" size="x-small"></lightning-icon>
+                                Compared on 
+                                <lightning-formatted-date-time 
+                                    value={comparisonResult.comparisonDate}
+                                    year="numeric"
+                                    month="short"
+                                    day="2-digit"
+                                    hour="2-digit"
+                                    minute="2-digit">
+                                </lightning-formatted-date-time>
+                            </p>
                         </div>
+                        <template if:true={comparisonResult.performanceChange}>
+                            <div class="risk-summary">
+                                <div class={riskLevelClass}>
+                                    <lightning-icon icon-name="utility:warning" size="x-small"></lightning-icon>
+                                    <span class="risk-score">{comparisonResult.performanceChange.riskScore}/10</span>
+                                    <span class="risk-label">{riskLevel} risk</span>
+                                </div>
+                            </div>
+                        </template>
                     </div>
-                </template>
 
-                <!-- Formula Changes -->
-                <template if:true={hasFormulaChanges}>
-                    <div class="slds-m-bottom_large">
-                        <h3 class="slds-text-heading_small slds-m-bottom_small">Formula Changes</h3>
-                        <div class="change-list">
-                            <template for:each={comparisonResult.formulaChanges} for:item="change">
-                                <div key={change.elementName} class="formula-change">
-                                    <div class="formula-header">
-                                        <span class="element-name">{change.elementName}</span>
-                                        <span class={change.impactLevel}>
-                                            {change.impactLevel} Impact
-                                        </span>
-                                    </div>
-                                    <div class="formula-diff">
-                                        <div class="formula-old">
-                                            <label>Before:</label>
-                                            <code>{change.oldFormula}</code>
+                    <!-- Enhanced Performance Metrics -->
+                    <template if:true={performanceData}>
+                        <div class="metrics-section">
+                            <h3 class="section-title">
+                                <lightning-icon icon-name="utility:chart" size="small"></lightning-icon>
+                                Performance Impact
+                            </h3>
+                            <div class="metrics-grid">
+                                <template for:each={performanceData} for:item="metric">
+                                    <div key={metric.metric} class="metric-card">
+                                        <div class="metric-icon">
+                                            <lightning-icon 
+                                                icon-name={metric.icon} 
+                                                size="medium"
+                                                variant={metric.iconVariant}>
+                                            </lightning-icon>
                                         </div>
-                                        <div class="formula-new">
-                                            <label>After:</label>
-                                            <code>{change.newFormula}</code>
+                                        <div class="metric-content">
+                                            <div class="metric-value" data-positive={metric.isPositive}>
+                                                {metric.improvement}%
+                                            </div>
+                                            <div class="metric-label">{metric.metric}</div>
+                                            <div class="metric-trend" data-positive={metric.isPositive}>
+                                                <lightning-icon 
+                                                    icon-name={metric.trendIcon} 
+                                                    size="x-small">
+                                                </lightning-icon>
+                                                {metric.trendLabel}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </template>
-
-                <!-- Decision Path Changes -->
-                <template if:true={hasDecisionChanges}>
-                    <div class="slds-m-bottom_large">
-                        <h3 class="slds-text-heading_small slds-m-bottom_small">Decision Path Changes</h3>
-                        <div class="change-list">
-                            <template for:each={comparisonResult.decisionPathChanges} for:item="change">
-                                <div key={change.decisionName} class="decision-change">
-                                    <div class="decision-header">
-                                        <span class="decision-name">{change.decisionName}</span>
-                                        <span class={change.impact}>
-                                            {change.impact} Impact
-                                        </span>
-                                    </div>
-                                    <div class="decision-description">{change.description}</div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </template>
-
-                <!-- Summary Section -->
-                <div class="slds-m-top_large">
-                    <lightning-button
-                        variant="outline-brand"
-                        label={showDetailsLabel}
-                        icon-name="utility:preview"
-                        onclick={handleToggleDetails}>
-                    </lightning-button>
-
-                    <template if:true={showDetails}>
-                        <div class="summary-section slds-m-top_medium">
-                            <h3 class="slds-text-heading_small">Detailed Summary</h3>
-                            <div class="summary-text">
-                                <lightning-formatted-text value={comparisonResult.summary}></lightning-formatted-text>
+                                </template>
                             </div>
                         </div>
                     </template>
-                </div>
 
+                    <!-- Enhanced Changes Section -->
+                    <div class="changes-section">
+                        <div class="changes-header">
+                            <h3 class="section-title">
+                                <lightning-icon icon-name="utility:change_record_type" size="small"></lightning-icon>
+                                Detected Changes
+                            </h3>
+                            <div class="changes-summary">
+                                <template if:true={hasElementChanges}>
+                                    <div class="change-count element-changes">
+                                        <lightning-icon icon-name="utility:layers" size="x-small"></lightning-icon>
+                                        <span>{comparisonResult.elementChanges.length} Elements</span>
+                                    </div>
+                                </template>
+                                <template if:true={hasFormulaChanges}>
+                                    <div class="change-count formula-changes">
+                                        <lightning-icon icon-name="utility:formula" size="x-small"></lightning-icon>
+                                        <span>{comparisonResult.formulaChanges.length} Formulas</span>
+                                    </div>
+                                </template>
+                                <template if:true={hasDecisionChanges}>
+                                    <div class="change-count decision-changes">
+                                        <lightning-icon icon-name="utility:routing_offline" size="x-small"></lightning-icon>
+                                        <span>{comparisonResult.decisionPathChanges.length} Decisions</span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Element Changes -->
+                        <template if:true={hasElementChanges}>
+                            <div class="change-group">
+                                <div class="group-header">
+                                    <h4 class="group-title">
+                                        <lightning-icon icon-name="utility:layers" size="small"></lightning-icon>
+                                        Element Changes
+                                    </h4>
+                                </div>
+                                <div class="change-list">
+                                    <template for:each={comparisonResult.elementChanges} for:item="change">
+                                        <div key={change.elementName} class="change-item">
+                                            <div class="change-badge" data-type={change.changeType}>
+                                                {change.changeType}
+                                            </div>
+                                            <div class="change-details">
+                                                <div class="change-main">
+                                                    <span class="element-type">{change.elementType}</span>
+                                                    <span class="element-name">{change.elementName}</span>
+                                                </div>
+                                                <div class="change-description">{change.description}</div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Formula Changes -->
+                        <template if:true={hasFormulaChanges}>
+                            <div class="change-group">
+                                <div class="group-header">
+                                    <h4 class="group-title">
+                                        <lightning-icon icon-name="utility:formula" size="small"></lightning-icon>
+                                        Formula Changes
+                                    </h4>
+                                </div>
+                                <div class="formula-list">
+                                    <template for:each={comparisonResult.formulaChanges} for:item="change">
+                                        <div key={change.elementName} class="formula-change">
+                                            <div class="formula-header">
+                                                <div class="formula-info">
+                                                    <span class="element-name">{change.elementName}</span>
+                                                    <div class="impact-badge" data-impact={change.impactLevel}>
+                                                        <lightning-icon icon-name="utility:priority" size="x-small"></lightning-icon>
+                                                        {change.impactLevel} Impact
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="formula-diff">
+                                                <div class="formula-before">
+                                                    <label class="diff-label">
+                                                        <lightning-icon icon-name="utility:dash" size="x-small"></lightning-icon>
+                                                        Before
+                                                    </label>
+                                                    <div class="code-block">{change.oldFormula}</div>
+                                                </div>
+                                                <div class="formula-after">
+                                                    <label class="diff-label">
+                                                        <lightning-icon icon-name="utility:add" size="x-small"></lightning-icon>
+                                                        After
+                                                    </label>
+                                                    <div class="code-block">{change.newFormula}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Decision Path Changes -->
+                        <template if:true={hasDecisionChanges}>
+                            <div class="change-group">
+                                <div class="group-header">
+                                    <h4 class="group-title">
+                                        <lightning-icon icon-name="utility:routing_offline" size="small"></lightning-icon>
+                                        Decision Path Changes
+                                    </h4>
+                                </div>
+                                <div class="decision-list">
+                                    <template for:each={comparisonResult.decisionPathChanges} for:item="change">
+                                        <div key={change.decisionName} class="decision-change">
+                                            <div class="decision-header">
+                                                <div class="decision-info">
+                                                    <span class="decision-name">{change.decisionName}</span>
+                                                    <div class="impact-badge" data-impact={change.impact}>
+                                                        <lightning-icon icon-name="utility:warning" size="x-small"></lightning-icon>
+                                                        {change.impact} Impact
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="decision-description">{change.description}</div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Enhanced Summary Section -->
+                    <div class="summary-section">
+                        <div class="summary-header">
+                            <h3 class="section-title">
+                                <lightning-icon icon-name="utility:preview" size="small"></lightning-icon>
+                                Detailed Analysis
+                            </h3>
+                            <lightning-button
+                                variant="outline-brand"
+                                label={showDetailsLabel}
+                                icon-name="utility:toggle"
+                                onclick={handleToggleDetails}
+                                class="toggle-button">
+                            </lightning-button>
+                        </div>
+
+                        <template if:true={showDetails}>
+                            <div class="summary-content">
+                                <div class="summary-text">
+                                    <lightning-formatted-text value={comparisonResult.summary}></lightning-formatted-text>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Loading State -->
+                <template if:true={isLoading}>
+                    <div class="loading-overlay">
+                        <lightning-spinner alternative-text="Analyzing flow versions..." size="medium" class="modern-spinner"></lightning-spinner>
+                        <p class="loading-text">Comparing flow versions and analyzing changes...</p>
+                    </div>
+                </template>
+
+                <!-- Empty State -->
+                <template if:false={hasResult}>
+                    <template if:false={isLoading}>
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <lightning-icon icon-name="utility:compare" size="large"></lightning-icon>
+                            </div>
+                            <h3 class="empty-title">Ready to Compare Flow Versions</h3>
+                            <p class="empty-description">
+                                Select a flow and specify the versions you want to compare.
+                                We'll analyze the differences and show performance impact.
+                            </p>
+                        </div>
+                    </template>
+                </template>
             </div>
-        </template>
-
-    </lightning-card>
+        </div>
+    </div>
 </template>

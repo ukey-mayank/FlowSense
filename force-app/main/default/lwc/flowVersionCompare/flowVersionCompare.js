@@ -42,25 +42,37 @@ export default class FlowVersionCompare extends LightningElement {
                 metric: 'CPU Time',
                 improvement: perf.cpuImprovement,
                 isPositive: perf.cpuImprovement > 0,
-                icon: perf.cpuImprovement > 0 ? 'utility:up' : 'utility:down'
+                icon: 'utility:processor',
+                iconVariant: perf.cpuImprovement > 0 ? 'success' : 'error',
+                trendIcon: perf.cpuImprovement > 0 ? 'utility:arrowup' : 'utility:arrowdown',
+                trendLabel: perf.cpuImprovement > 0 ? 'improvement' : 'regression'
             },
             {
                 metric: 'Memory Usage',
                 improvement: perf.memoryImprovement,
                 isPositive: perf.memoryImprovement > 0,
-                icon: perf.memoryImprovement > 0 ? 'utility:up' : 'utility:down'
+                icon: 'utility:database',
+                iconVariant: perf.memoryImprovement > 0 ? 'success' : 'error',
+                trendIcon: perf.memoryImprovement > 0 ? 'utility:arrowup' : 'utility:arrowdown',
+                trendLabel: perf.memoryImprovement > 0 ? 'improvement' : 'regression'
             },
             {
                 metric: 'Execution Time',
                 improvement: perf.executionTimeImprovement,
                 isPositive: perf.executionTimeImprovement > 0,
-                icon: perf.executionTimeImprovement > 0 ? 'utility:up' : 'utility:down'
+                icon: 'utility:clock',
+                iconVariant: perf.executionTimeImprovement > 0 ? 'success' : 'error',
+                trendIcon: perf.executionTimeImprovement > 0 ? 'utility:arrowup' : 'utility:arrowdown',
+                trendLabel: perf.executionTimeImprovement > 0 ? 'faster execution' : 'slower execution'
             },
             {
                 metric: 'Complexity',
-                improvement: perf.complexityChange,
+                improvement: Math.abs(perf.complexityChange),
                 isPositive: perf.complexityChange <= 0,
-                icon: perf.complexityChange <= 0 ? 'utility:down' : 'utility:up'
+                icon: 'utility:hierarchy',
+                iconVariant: perf.complexityChange <= 0 ? 'success' : 'warning',
+                trendIcon: perf.complexityChange <= 0 ? 'utility:arrowdown' : 'utility:arrowup',
+                trendLabel: perf.complexityChange <= 0 ? 'simplified' : 'more complex'
             }
         ];
     }
