@@ -62,10 +62,15 @@
 }
 
 .header-icon {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: var(--fs-border-radius);
-    padding: 1rem;
-    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    backdrop-filter: none;
+}
+
+.header-icon lightning-icon {
+    --sds-c-icon-color-foreground-default: white;
 }
 
 .header-content {
@@ -73,7 +78,7 @@
 }
 
 .card-title {
-    font-size: 1.875rem;
+    font-size: 1.5rem;
     font-weight: 700;
     margin: 0 0 0.5rem 0;
     line-height: 1.2;
