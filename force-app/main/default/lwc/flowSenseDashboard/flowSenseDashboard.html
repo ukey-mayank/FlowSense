@@ -11,71 +11,21 @@
                 </div>
                 <div class="header-actions">
                     <div class="action-buttons">
-                        <lightning-button variant="neutral" icon-name="utility:refresh" label="Refresh" onclick={handleRefresh}></lightning-button>
+                        <lightning-button 
+                            variant="neutral" 
+                            icon-name="utility:refresh" 
+                            label="Refresh" 
+                            onclick={handleRefresh}
+                            disabled={isRefreshing}>
+                        </lightning-button>
+                        <template if:true={isRefreshing}>
+                            <lightning-spinner alternative-text="Refreshing..." size="small" class="refresh-spinner"></lightning-spinner>
+                        </template>
                     </div>
                 </div>
             </div>
             
             <div class="card-content">
-                <!-- Enhanced Filter Controls -->
-                <div class="filter-section">
-                    <div class="filter-header">
-                        <h3 class="filter-title">
-                            <lightning-icon icon-name="utility:filter" size="small"></lightning-icon>
-                            Filters
-                        </h3>
-                        <lightning-button variant="neutral" label="Clear All" onclick={clearAllFilters}></lightning-button>
-                    </div>
-                    <div class="filter-grid">
-                        <div class="filter-item">
-                            <lightning-combobox
-                                name="timeRange"
-                                label="Time Range"
-                                value={selectedTimeRange}
-                                placeholder="Select time range"
-                                options={timeRangeOptions}
-                                onchange={handleTimeRangeChange}
-                                variant="label-stacked">
-                            </lightning-combobox>
-                        </div>
-                        
-                        <div class="filter-item">
-                            <lightning-combobox
-                                name="riskLevel"
-                                label="Risk Level"
-                                value={selectedRiskLevel}
-                                placeholder="All risk levels"
-                                options={riskLevelOptions}
-                                onchange={handleRiskLevelChange}
-                                variant="label-stacked">
-                            </lightning-combobox>
-                        </div>
-                        
-                        <div class="filter-item">
-                            <lightning-input
-                                type="search"
-                                label="Search Flows"
-                                value={searchTerm}
-                                placeholder="Enter flow name..."
-                                onchange={handleSearchChange}
-                                variant="label-stacked">
-                            </lightning-input>
-                        </div>
-                        
-                        <div class="filter-item">
-                            <lightning-combobox
-                                name="flowType"
-                                label="Flow Type"
-                                value={selectedFlowType}
-                                placeholder="All types"
-                                options={flowTypeOptions}
-                                onchange={handleFlowTypeChange}
-                                variant="label-stacked">
-                            </lightning-combobox>
-                        </div>
-                    </div>
-                </div>
-                
                 <!-- Enhanced Summary Cards -->
                 <div class="metrics-section">
                     <h3 class="section-title">
@@ -137,6 +87,59 @@
                                     No change
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compact Filter Controls -->
+                <div class="filter-section compact">
+                    <div class="filter-header">
+                        <h3 class="filter-title">
+                            <lightning-icon icon-name="utility:filter" size="small"></lightning-icon>
+                            Filters
+                        </h3>
+                    </div>
+                    <div class="filter-controls">
+                        <div class="filter-inputs">
+                            <lightning-combobox
+                                name="timeRange"
+                                label="Time Range"
+                                value={selectedTimeRange}
+                                placeholder="Select range"
+                                options={timeRangeOptions}
+                                onchange={handleTimeRangeChange}
+                                variant="label-hidden">
+                            </lightning-combobox>
+                            
+                            <lightning-combobox
+                                name="riskLevel"
+                                label="Risk Level"
+                                value={selectedRiskLevel}
+                                placeholder="All risk levels"
+                                options={riskLevelOptions}
+                                onchange={handleRiskLevelChange}
+                                variant="label-hidden">
+                            </lightning-combobox>
+                            
+                            <lightning-input
+                                type="search"
+                                label="Search Flows"
+                                value={searchTerm}
+                                placeholder="Search flows..."
+                                onchange={handleSearchChange}
+                                variant="label-hidden">
+                            </lightning-input>
+                        </div>
+                        
+                        <div class="filter-actions">
+                            <lightning-button
+                                variant="brand"
+                                label="Search"
+                                icon-name="utility:search"
+                                onclick={handleApplyFilters}
+                                disabled={isLoading}
+                                class="search-button">
+                            </lightning-button>
                         </div>
                     </div>
                 </div>

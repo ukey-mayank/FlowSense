@@ -21,6 +21,7 @@ export default class FlowSenseDashboard extends LightningElement {
     @track showFlowDetailModal = false;
     @track selectedFlowDetails = null;
     @track isAnalyzing = false;
+    @track isRefreshing = false; // Track refresh state separately
     @track refreshKey = 0; // Add refresh key for forcing re-renders
 
     columns = [
@@ -100,8 +101,13 @@ export default class FlowSenseDashboard extends LightningElement {
     ];
 
     connectedCallback() {
-        this.loadFlowOptions();
-        this.loadDashboardData();
+        this.isLoading = true;
+        Promise.all([
+            this.loadFlowOptions(),
+            this.loadDashboardData()
+        ]).finally(() => {
+            this.isLoading = false;
+        });
     }
 
     async loadFlowOptions() {
@@ -120,7 +126,7 @@ export default class FlowSenseDashboard extends LightningElement {
 
     async loadDashboardData() {
         console.log('Loading dashboard data...');
-        this.isLoading = true;
+        
         try {
             // Add timestamp to prevent caching
             const timestamp = new Date().getTime();
@@ -175,8 +181,6 @@ export default class FlowSenseDashboard extends LightningElement {
         } catch (error) {
             console.error('Error loading dashboard data:', error);
             this.showToast('Error', 'Failed to load dashboard data: ' + (error.body?.message || error.message), 'error');
-        } finally {
-            this.isLoading = false;
         }
     }
 
@@ -229,20 +233,30 @@ export default class FlowSenseDashboard extends LightningElement {
 
     handleTimeRangeChange(event) {
         this.selectedTimeRange = event.detail.value;
-        this.loadDashboardData();
+        // Don't auto-apply filters, wait for search button
     }
 
     handleRiskLevelChange(event) {
         this.selectedRiskLevel = event.detail.value;
-        this.loadDashboardData();
+        // Don't auto-apply filters, wait for search button
     }
 
     handleSearchChange(event) {
         this.searchTerm = event.detail.value;
-        clearTimeout(this.searchTimeout);
-        this.searchTimeout = setTimeout(() => {
-            this.loadDashboardData();
-        }, 500);
+        // Don't auto-apply filters, wait for search button
+    }
+
+    // New method to apply filters when Search button is clicked
+    handleApplyFilters() {
+        console.log('Applying filters:', {
+            timeRange: this.selectedTimeRange,
+            riskLevel: this.selectedRiskLevel,
+            searchTerm: this.searchTerm
+        });
+        this.isLoading = true;
+        this.loadDashboardData().finally(() => {
+            this.isLoading = false;
+        });
     }
 
     handleSearchFocus() {
@@ -251,7 +265,8 @@ export default class FlowSenseDashboard extends LightningElement {
 
     async handleRefresh() {
         console.log('Refresh button clicked');
-        this.showToast('Info', 'Refreshing dashboard data...', 'info');
+        this.isRefreshing = true;
+        this.isLoading = true;
         
         // Reset all data to ensure fresh reload
         this.flowAnalysisData = [];
@@ -264,14 +279,20 @@ export default class FlowSenseDashboard extends LightningElement {
         this.refreshKey += 1;
         
         try {
-            // Force reload by adding timestamp to prevent caching
-            await this.loadDashboardData();
-            // Also reload flow options
-            await this.loadFlowOptions();
+            // Force reload by reloading both data sources
+            await Promise.all([
+                this.loadDashboardData(),
+                this.loadFlowOptions()
+            ]);
+            
+            // Only show toast after successful completion
             this.showToast('Success', 'Dashboard refreshed successfully', 'success');
         } catch (error) {
             console.error('Error during refresh:', error);
             this.showToast('Error', 'Failed to refresh dashboard: ' + (error.body?.message || error.message), 'error');
+        } finally {
+            this.isLoading = false;
+            this.isRefreshing = false;
         }
     }
 
