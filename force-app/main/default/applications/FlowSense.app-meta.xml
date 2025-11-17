@@ -13,7 +13,11 @@
     <label>FlowSense</label>
     <navType>Standard</navType>
     <tabs>FlowSense_Dashboard</tabs>
+    <tabs>FS_Perf_Heatmap</tabs>
+    <tabs>FS_Run_Explorer</tabs>
+    <tabs>FS_Doc_Viewer</tabs>
     <tabs>Flow_Version_Compare</tabs>
+    <tabs>FS_Settings</tabs>
     <tabs>FS_Flow_Run__c</tabs>
     <tabs>FS_Flow_Analysis__c</tabs>
     <uiType>Lightning</uiType>
