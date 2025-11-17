@@ -33,38 +33,57 @@
                             </lightning-combobox>
                         </div>
                         <div class="input-item compact">
-                            <lightning-input
+                            <lightning-combobox
                                 name="fromVersion"
                                 label="From Version"
-                                type="number"
                                 value={fromVersion}
-                                min="1"
+                                placeholder="Select version..."
+                                options={fromVersionOptions}
                                 onchange={handleFromVersionChange}
                                 variant="label-stacked"
+                                disabled={versionDropdownsDisabled}
                                 required>
-                            </lightning-input>
+                            </lightning-combobox>
+                            <template if:true={isLoadingVersions}>
+                                <div class="version-loading">
+                                    <lightning-spinner size="x-small"></lightning-spinner>
+                                    <span class="loading-text-small">Loading versions...</span>
+                                </div>
+                            </template>
+                            <template if:true={hasSingleVersionOnly}>
+                                <div class="single-version-message">
+                                    <lightning-icon icon-name="utility:info" size="x-small"></lightning-icon>
+                                    <span class="info-text">Only one version available</span>
+                                </div>
+                            </template>
                         </div>
                         <div class="input-item compact">
-                            <lightning-input
+                            <lightning-combobox
                                 name="toVersion"
                                 label="To Version"
-                                type="number"
                                 value={toVersion}
-                                min="1"
+                                placeholder="Select version..."
+                                options={toVersionOptions}
                                 onchange={handleToVersionChange}
                                 variant="label-stacked"
+                                disabled={versionDropdownsDisabled}
                                 required>
-                            </lightning-input>
+                            </lightning-combobox>
+                            <template if:true={hasSingleVersionOnly}>
+                                <div class="single-version-message">
+                                    <lightning-icon icon-name="utility:info" size="x-small"></lightning-icon>
+                                    <span class="info-text">Only one version available</span>
+                                </div>
+                            </template>
                         </div>
                         <div class="input-item action-item">
                             <div class="button-container">
                                 <template if:false={isLoading}>
                                     <lightning-button 
                                         variant="brand" 
-                                        label="Compare Versions" 
-                                        icon-name="utility:compare" 
+                                        label="Compare" 
                                         onclick={handleCompare}
-                                        disabled={isLoading}
+                                        disabled={compareButtonDisabled}
                                         class="compare-button">
                                     </lightning-button>
                                 </template>
