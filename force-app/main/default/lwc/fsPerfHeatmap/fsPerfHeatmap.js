@@ -123,6 +123,16 @@ export default class FsPerfHeatmap extends LightningElement {
         this.createHeatmapGrid(heatmapContainer);
     }
 
+    renderHeatmap() {
+        if (!this.chartjsInitialized) return;
+
+        const heatmapContainer = this.template.querySelector('.heatmap-grid');
+        if (!heatmapContainer) return;
+
+        // Re-render the heatmap with current data
+        this.createHeatmapGrid(heatmapContainer);
+    }
+
     createHeatmapGrid(container) {
         // Clear existing content
         container.innerHTML = '';

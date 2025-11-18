@@ -27,10 +27,7 @@
         <apexClass>FS_FlowMetadataService</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>FS_DocumentationService</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
+
     <classAccesses>
         <apexClass>FS_NotifyService</apexClass>
         <enabled>true</enabled>
@@ -127,10 +124,6 @@
     </tabSettings>
     
     <!-- User Permissions -->
-    <userPermissions>
-        <enabled>true</enabled>
-        <name>ViewSetup</name>
-    </userPermissions>
     <userPermissions>
         <enabled>true</enabled>
         <name>ManageCustomPermissions</name>

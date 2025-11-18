@@ -23,10 +23,7 @@
         <apexClass>FS_FlowMetadataService</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-    <classAccesses>
-        <apexClass>FS_DocumentationService</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
+
     <classAccesses>
         <apexClass>FS_DashboardController</apexClass>
         <enabled>true</enabled>

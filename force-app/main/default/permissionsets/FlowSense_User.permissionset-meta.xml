@@ -25,7 +25,16 @@
         <object>FS_Flow_Analysis__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
-    <!-- Only fields specifically used by dashboard controller -->
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>FS_Flow_Step__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <!-- Fields for dashboard and performance analysis -->
     <fieldPermissions>
         <editable>false</editable>
         <field>FS_Flow_Analysis__c.Performance_Score__c</field>
@@ -49,6 +58,36 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>FS_Flow_Run__c.Duration_Millis__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Run__c.Flow_API_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Run__c.Flow_Label__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Run__c.Runtime_User__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Run__c.Interview_Id__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Run__c.Status__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>FS_Flow_Run__c.Started_At__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -65,6 +104,67 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>FS_Flow_Run__c.DML_Count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <!-- FS_Flow_Step__c fields for performance analysis -->
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.Duration_Millis__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.CPU_Millis__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.SOQL_Count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.DML_Count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.Element_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.Element_Developer_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.Element_Label__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.Sequence_Number__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.Entered_At__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.Exited_At__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.Outcome__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>FS_Flow_Step__c.Error_Message__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <tabSettings>

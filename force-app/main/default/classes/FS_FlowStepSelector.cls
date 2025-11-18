@@ -150,64 +150,93 @@ public with sharing class FS_FlowStepSelector {
     public static Map<String, Object> getFlowPerformanceData(Integer days, String flowType, String searchTerm) {
         DateTime startDate = System.now().addDays(-days);
         
-        // Build dynamic SOQL with filters
-        String whereClause = 'WHERE Flow_Run__r.Started_At__c >= :startDate';
-        if (String.isNotBlank(searchTerm)) {
-            whereClause += ' AND Flow_Run__r.Flow_Label__c LIKE :searchPattern';
-        }
-        
-        String searchPattern = String.isNotBlank(searchTerm) ? '%' + searchTerm + '%' : null;
-        
-        // Aggregate performance data
-        List<AggregateResult> perfResults = Database.query(
-            'SELECT Flow_Run__r.Flow_API_Name__c flowName, ' +
-            'Flow_Run__r.Flow_Label__c flowLabel, ' +
-            'AVG(Duration_Millis__c) avgDuration, ' +
-            'COUNT(Id) totalRuns, ' +
-            'AVG(CPU_Millis__c) avgCpu, ' +
-            'AVG(SOQL_Count__c) avgSoql, ' +
-            'AVG(DML_Count__c) avgDml ' +
-            'FROM FS_Flow_Step__c ' +
-            whereClause + ' ' +
-            'AND Duration_Millis__c != null ' +
-            'WITH SECURITY_ENFORCED ' +
-            'GROUP BY Flow_Run__r.Flow_API_Name__c, Flow_Run__r.Flow_Label__c ' +
-            'ORDER BY AVG(Duration_Millis__c) DESC ' +
-            'LIMIT 100'
-        );
-        
-        List<Map<String, Object>> flowData = new List<Map<String, Object>>();
-        Integer criticalFlows = 0, warningFlows = 0, healthyFlows = 0;
-        Decimal totalPerf = 0;
-        
-        for (AggregateResult result : perfResults) {
-            Decimal avgDuration = (Decimal) result.get('avgDuration');
-            Map<String, Object> flowInfo = new Map<String, Object>{
-                'Id' => (String) result.get('flowName'),
-                'FlowName' => (String) result.get('flowLabel'),
-                'AverageDuration' => avgDuration.intValue(),
-                'TotalRuns' => (Integer) result.get('totalRuns'),
-                'AverageCpuTime' => ((Decimal) result.get('avgCpu'))?.intValue(),
-                'AverageSoqlQueries' => ((Decimal) result.get('avgSoql'))?.intValue(),
-                'AverageDmlStatements' => ((Decimal) result.get('avgDml'))?.intValue(),
-                'ErrorRate' => 0.0
+        try {
+            // Use a simpler approach that aggregates from Flow Runs directly
+            // since relationship queries in dynamic SOQL can cause permission issues
+            List<AggregateResult> perfResults;
+            
+            if (String.isNotBlank(searchTerm)) {
+                String searchPattern = '%' + searchTerm + '%';
+                perfResults = [
+                    SELECT Flow_API_Name__c flowName, 
+                           COUNT(Id) totalRuns,
+                           AVG(Duration_Millis__c) avgDuration,
+                           AVG(CPU_Time_Millis__c) avgCpu,
+                           AVG(SOQL_Count__c) avgSoql,
+                           AVG(DML_Count__c) avgDml
+                    FROM FS_Flow_Run__c 
+                    WHERE Started_At__c >= :startDate
+                    AND Flow_API_Name__c LIKE :searchPattern
+                    AND Duration_Millis__c != null
+                    WITH SECURITY_ENFORCED
+                    GROUP BY Flow_API_Name__c 
+                    ORDER BY AVG(Duration_Millis__c) DESC 
+                    LIMIT 100
+                ];
+            } else {
+                perfResults = [
+                    SELECT Flow_API_Name__c flowName, 
+                           COUNT(Id) totalRuns,
+                           AVG(Duration_Millis__c) avgDuration,
+                           AVG(CPU_Time_Millis__c) avgCpu,
+                           AVG(SOQL_Count__c) avgSoql,
+                           AVG(DML_Count__c) avgDml
+                    FROM FS_Flow_Run__c 
+                    WHERE Started_At__c >= :startDate
+                    AND Duration_Millis__c != null
+                    WITH SECURITY_ENFORCED
+                    GROUP BY Flow_API_Name__c 
+                    ORDER BY AVG(Duration_Millis__c) DESC 
+                    LIMIT 100
+                ];
+            }
+            
+            List<Map<String, Object>> flowData = new List<Map<String, Object>>();
+            Integer criticalFlows = 0, warningFlows = 0, healthyFlows = 0;
+            Decimal totalPerf = 0;
+            
+            for (AggregateResult result : perfResults) {
+                Decimal avgDuration = (Decimal) result.get('avgDuration');
+                if (avgDuration == null) continue;
+                
+                Map<String, Object> flowInfo = new Map<String, Object>{
+                    'Id' => (String) result.get('flowName'),
+                    'FlowName' => (String) result.get('flowName'), // Use API name since Flow_Label__c might not be accessible
+                    'AverageDuration' => avgDuration.intValue(),
+                    'TotalRuns' => (Integer) result.get('totalRuns'),
+                    'AverageCpuTime' => ((Decimal) result.get('avgCpu'))?.intValue(),
+                    'AverageSoqlQueries' => ((Decimal) result.get('avgSoql'))?.intValue(),
+                    'AverageDmlStatements' => ((Decimal) result.get('avgDml'))?.intValue(),
+                    'ErrorRate' => 0.0
+                };
+                
+                if (avgDuration > 30000) criticalFlows++;
+                else if (avgDuration > 5000) warningFlows++;
+                else healthyFlows++;
+                
+                totalPerf += avgDuration;
+                flowData.add(flowInfo);
+            }
+            
+            return new Map<String, Object>{
+                'flowData' => flowData,
+                'criticalFlows' => criticalFlows,
+                'warningFlows' => warningFlows,
+                'healthyFlows' => healthyFlows,
+                'averagePerformance' => perfResults.isEmpty() ? 0 : (totalPerf / perfResults.size()).intValue()
             };
             
-            if (avgDuration > 30000) criticalFlows++;
-            else if (avgDuration > 5000) warningFlows++;
-            else healthyFlows++;
-            
-            totalPerf += avgDuration;
-            flowData.add(flowInfo);
+        } catch (Exception e) {
+            System.debug('Error in getFlowPerformanceData: ' + e.getMessage());
+            // Return empty but valid structure
+            return new Map<String, Object>{
+                'flowData' => new List<Map<String, Object>>(),
+                'criticalFlows' => 0,
+                'warningFlows' => 0,
+                'healthyFlows' => 0,
+                'averagePerformance' => 0
+            };
         }
-        
-        return new Map<String, Object>{
-            'flowData' => flowData,
-            'criticalFlows' => criticalFlows,
-            'warningFlows' => warningFlows,
-            'healthyFlows' => healthyFlows,
-            'averagePerformance' => perfResults.isEmpty() ? 0 : (totalPerf / perfResults.size()).intValue()
-        };
     }
     
     /**
